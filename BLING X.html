@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLING X - OFFICIEL</title>
+    <style>
+        :root {
+            --primary-gold: #FFD700;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1e1e1e;
+            --success: #28a745;
+            --danger: #ff4d4d;
+            --flash-purple: #e000ff;
+            --nav-prod: #ff4757; --nav-hist: #2ed573; --nav-lien: #1e90ff;
+            --nav-amis: #ffa502; --nav-info: #70a1ff; --nav-acc: #ffffff;
+        }
+
+        body, html { margin: 0; padding: 0; font-family: 'Arial Black', sans-serif; background-color: var(--dark-bg); color: white; scroll-behavior: smooth; }
+        
+        #auth-screen, #forgot-screen {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1573164067047-0ad2c18a202a?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+
+        .form-box { background: rgba(25, 25, 25, 0.95); padding: 20px; border-radius: 20px; border: 2px solid var(--primary-gold); width: 90%; max-width: 400px; margin-top: 15px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: white; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 10px; }
+        .btn-gold { background: var(--primary-gold); color: black; }
+        .btn-presence { background: #5758BB; color: white; margin-bottom: 10px; border: 2px solid white; width: 100%; }
+        .btn-sunday { background: var(--flash-purple); color: white; animation: blink 1s infinite; margin-bottom: 15px; width: 100%; display: none; }
+        .btn-copy { background: #333; color: var(--primary-gold); padding: 8px; font-size: 11px; border-radius: 5px; border: 1px solid var(--primary-gold); cursor: pointer; margin-bottom: 10px; }
+
+        @keyframes blink { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+
+        #dashboard { display: none; padding: 20px 20px 120px 20px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; display: flex; border-top: 2px solid var(--primary-gold); z-index: 1000; }
+        .nav-btn { flex: 1; padding: 15px 2px; text-align: center; font-size: 9px; text-decoration: none; font-weight: bold; }
+
+        .section { display: none; }
+        .active-section { display: block; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .card { background: var(--card-bg); padding: 12px; border-radius: 12px; border: 1px solid #333; text-align: center; font-family: sans-serif; margin-bottom: 10px; }
+        .rect-yellow { background: var(--primary-gold); color: black; padding: 15px; border-radius: 10px; margin: 10px 0; font-weight: bold; text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; color: white; }
+        th, td { border: 1px solid #444; padding: 8px; text-align: left; }
+        th { background: #222; color: var(--primary-gold); }
+        
+        #timer-box { font-size: 14px; color: var(--danger); font-weight: bold; margin-bottom: 10px; display: none; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 10px; border: 1px solid red; }
+    </style>
+</head>
+<body>
+
+<div id="auth-screen">
+    <h1 style="color:var(--primary-gold); margin:0; font-size: 3rem;">BLING X</h1>
+    <div class="form-box">
+        <form id="formRegister">
+            <input type="text" id="reg-nom" placeholder="Nom Complet" required>
+            <input type="email" id="reg-email" placeholder="Email Valide" required>
+            <input type="text" id="reg-tel" placeholder="Téléphone (+243...)" value="+243" required maxlength="13">
+            <input type="password" id="reg-pass" placeholder="Mot de passe (8 chiffres)" maxlength="8" required>
+            <button type="submit" class="btn btn-gold">S'INSCRIRE</button>
+        </form>
+    </div>
+</div>
+
+<div id="dashboard">
+    <section id="sec-produits" class="section active-section">
+        <h2 style="color: var(--primary-gold);">BOUTIQUE</h2>
+        <button class="btn btn-presence" onclick="claimDaily()">🎁 PRÉSENCE QUOTIDIENNE (+100 FC)</button>
+        <button class="btn btn-sunday" id="btn-sunday" onclick="buy('OFFRE-SUN', 10000, 35000, 1)">🔥 OFFRE DIMANCHE : 10.000 -> 35.000 FC (1J)</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-gold" style="flex:1" onclick="showCat('A')">BLING X A</button>
+            <button class="btn-gold" style="flex:1" onclick="showCat('B')">BLING X B</button>
+        </div>
+        <div id="cat-A" class="grid"></div>
+        <div id="cat-B" class="grid" style="display:none"></div>
+    </section>
+
+    <section id="sec-historique" class="section">
+        <h2 style="color:var(--nav-hist);">MON HISTORIQUE</h2>
+        <div id="hist-list"></div>
+    </section>
+
+    <section id="sec-amis" class="section">
+        <h2 style="color:var(--nav-amis);">MES INVITÉS</h2>
+        <div class="card">
+            <table>
+                <thead><tr><th>Nom</th><th>Date</th></tr></thead>
+                <tbody id="amis-table"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="sec-info" class="section">
+        <h2 style="color:var(--nav-info);">À PROPOS</h2>
+        <div class="card" style="text-align:left; font-size:14px; line-height:1.5;">
+            BLING X est une plateforme numérique qui permet d’acheter des produits, de gagner de l’argent sur une durée définie et d’effectuer des retraits via Airtel Money. 
+            <br><br>L’inscription se fait avec un email valide et un numéro de téléphone de la RDC (+243). Une fois le compte créé, l’utilisateur peut choisir un produit, consulter ses soldes et effectuer un retrait après la fin de la durée du produit, avec une retenue de 15 % par le système.
+            <br><br>BLING X garantit simplicité, sécurité et transparence.
+        </div>
+    </section>
+
+    <section id="sec-compte" class="section">
+        <h2 style="color: var(--primary-gold);">PORTEFEUILLE</h2>
+        
+        <div id="timer-box">⏳ Temps restant pour valider : <span id="timer">40:00</span></div>
+
+        <div class="rect-yellow">Solde Amis : <span id="val-amis">0</span> FC</div>
+        <div class="rect-yellow">
+            Solde Réel : <span id="val-reel">0</span> FC <br> 
+            <span style="font-size:40px; cursor:pointer" onclick="validateWithMessage()">📷</span>
+            <p style="font-size:10px; margin:0;">(Cliquez ici pour coller le message)</p>
+        </div>
+        <div class="rect-yellow">Solde Final : <span id="val-final">0</span> FC</div>
+        
+        <div class="form-box" style="background:#111; max-width:100%;">
+            <p style="font-size:12px;">Agent : <b>0925252644</b></p>
+            <button class="btn-copy" onclick="copyNumber()">COPIER LE NUMÉRO</button>
+            <hr style="border:0.1px solid #333; margin:15px 0;">
+            <input type="number" id="w-amount" placeholder="Montant">
+            <input type="text" id="w-tel" placeholder="Numéro Airtel">
+            <button class="btn btn-gold" onclick="processWithdraw()">RETIRER</button>
+            <div id="withdraw-status" style="font-size:12px; margin-top:10px;"></div>
+        </div>
+    </section>
+
+    <nav class="nav-bar">
+        <a href="#" class="nav-btn" style="color:var(--nav-prod)" onclick="nav('sec-produits')">PRODUIT</a>
+        <a href="#" class="nav-btn" style="color:var(--nav-hist)" onclick="nav('sec-historique')">HISTORIQUE</a>
+        <a href="#" class="nav-btn" style="color:var(--nav-lien)" onclick="alert('Lien copié dans le presse-papier !')">TON LIEN</a>
+        <a href="#" class="nav-btn" style="color:var(--nav-amis)" onclick="nav('sec-amis')">AMIS</a>
+        <a href="#" class="nav-btn" style="color:var(--nav-info)" onclick="nav('sec-info')">INFO</a>
+        <a href="#" class="nav-btn" style="color:var(--nav-acc)" onclick="nav('sec-compte')">COMPTE</a>
+    </nav>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('blingX_final_prod')) || {
+        user: null, balances: { amis: 0, reel: 0, final: 0 },
+        history: [], purchases: {}, lastClaim: null, friends: [],
+        hasPaid: false, investDate: null, investDuration: 0, 
+        timerStart: null, activePrice: 0, activeRet: 0
+    };
+
+    let timerInterval;
+
+    const prodA = [
+        {id:'A3', p:5000, d:3, m:2, r:11000}, {id:'X6', p:10000, d:5, m:3, r:15000},
+        {id:'X7', p:20000, d:7, m:3, r:37000}, {id:'X9', p:70000, d:7, m:6, r:95000},
+        {id:'X13', p:30000, d:4, m:2, r:43000}, {id:'X15', p:12000, d:4, m:2, r:25000},
+        {id:'X17', p:90000, d:7, m:6, r:150000}, {id:'A20', p:45000, d:5, m:2, r:57000},
+        {id:'X22', p:15000, d:7, m:1, r:28000}, {id:'X25', p:70000, d:4, m:2, r:97000},
+        {id:'X27', p:65000, d:3, m:2, r:75000}, {id:'X13b', p:30000, d:4, m:2, r:87000}
+    ];
+
+    const prodB = [
+        {id:'XB', p:85000, d:8, m:3, r:180000}, {id:'B2', p:170000, d:3, m:7, r:295000},
+        {id:'B4', p:80000, d:6, m:2, r:160000}, {id:'B6', p:205000, d:8, m:4, r:218000},
+        {id:'B10', p:75000, d:10, m:4, r:108000}, {id:'X7B', p:95000, d:2, m:1, r:180000},
+        {id:'B13', p:180000, d:5, m:2, r:195000}, {id:'B17', p:80000, d:6, m:2, r:160000},
+        {id:'B22', p:240000, d:5, m:3, r:280000}, {id:'B26', p:300000, d:3, m:2, r:348000},
+        {id:'B27', p:330000, d:7, m:4, r:357000}, {id:'B28a', p:340000, d:3, m:3, r:359000},
+        {id:'B28b', p:355000, d:3, m:2, r:370000}
+    ];
+
+    function save() { localStorage.setItem('blingX_final_prod', JSON.stringify(db)); }
+
+    function copyNumber() {
+        navigator.clipboard.writeText("0925252644");
+        alert("Numéro 0925252644 copié !");
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        document.getElementById('timer-box').style.display = 'block';
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const diff = 40 * 60 * 1000 - (now - db.timerStart);
+            if (diff <= 0) {
+                clearInterval(timerInterval);
+                cancelPurchase();
+            } else {
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            }
+        }, 1000);
+    }
+
+    function cancelPurchase() {
+        db.timerStart = null;
+        db.hasPaid = false;
+        db.balances.reel = 0;
+        document.getElementById('timer-box').style.display = 'none';
+        save(); updateUI();
+        alert("⌛ Temps de validation (40min) expiré. Le prix réel est annulé.");
+    }
+
+    function buy(id, price, ret, duration) {
+        db.purchases[id] = (db.purchases[id] || 0) + 1;
+        db.activePrice = price;
+        db.activeRet = ret;
+        db.investDuration = duration;
+        db.timerStart = Date.now();
+        db.hasPaid = false;
+        db.balances.reel = 0; // Remise à zéro tant que pas de message
+        
+        const now = new Date();
+        db.history.unshift({ id, d: now.toLocaleDateString(), h: now.toLocaleTimeString(), n: db.purchases[id] });
+        save(); render(); updateUI(); nav('sec-compte'); startTimer();
+        alert("Produit réservé ! Envoyez " + price + " FC au 0925252644. Vous avez 20 min pour coller le message ici.");
+    }
+
+    function validateWithMessage() {
+        if (!db.timerStart) return alert("Aucun achat en cours de validation.");
+        let msg = prompt("Collez ici le message de confirmation Airtel Money reçu :");
+        if (msg && msg.includes("0925252644") && msg.includes(db.activePrice.toString())) {
+            clearInterval(timerInterval);
+            db.hasPaid = true;
+            db.investDate = Date.now();
+            db.balances.reel = db.activePrice;
+            db.balances.final = db.balances.amis + db.activeRet;
+            db.timerStart = null;
+            document.getElementById('timer-box').style.display = 'none';
+            save(); updateUI();
+            alert("✅ Paiement validé ! Votre solde réel a été mis à jour.");
+        } else {
+            alert("❌ Message incorrect. Assurez-vous d'avoir envoyé le montant exact au bon numéro.");
+        }
+    }
+
+    function processWithdraw() {
+        const status = document.getElementById('withdraw-status');
+        if(!db.hasPaid) {
+            status.innerHTML = "<span style='color:red'>Retrait refusé : Vous n'avez pas validé le message de confirmation.</span>";
+            return;
+        }
+        
+        const daysPassed = (Date.now() - db.investDate) / (1000 * 60 * 60 * 24);
+        if(daysPassed < db.investDuration) {
+            const left = Math.ceil(db.investDuration - daysPassed);
+            status.innerHTML = `<span style='color:red'>Retrait refusé : Les jours (${db.investDuration}) ne sont pas écoulés. Revenez dans ${left} jour(s).</span>`;
+            return;
+        }
+        
+        status.innerHTML = "<span style='color:green'>Demande de retrait acceptée. Patientez 30 minutes.</span>";
+    }
+
+    function claimDaily() {
+        const today = new Date().toDateString();
+        if(db.lastClaim === today) return alert("Revenez demain !");
+        db.balances.amis += 100; db.balances.final += 100; db.lastClaim = today;
+        save(); updateUI(); alert("✅ Cadeau de présence : +100 FC !");
+    }
+
+    function render() {
+        const draw = (list, target) => {
+            document.getElementById(target).innerHTML = list.map(x => {
+                const q = db.purchases[x.id] || 0;
+                return `<div class="card" style="${q>=x.m?'opacity:0.4':''}">
+                    <b style="color:gold">${x.id}</b><br><small>${x.p} FC | ${x.d} Jours</small><br>
+                    <b style="color:var(--success)">${x.r} FC</b><br>
+                    <button class="btn-gold" style="font-size:10px; width:100%" ${q>=x.m?'disabled':''} onclick="buy('${x.id}',${x.p},${x.r},${x.d})">ACHETER (${q}/${x.m})</button>
+                </div>`;
+            }).join('');
+        };
+        draw(prodA, 'cat-A'); draw(prodB, 'cat-B');
+        document.getElementById('btn-sunday').style.display = new Date().getDay() === 0 ? 'block' : 'none';
+    }
+
+    function updateUI() {
+        document.getElementById('val-amis').innerText = db.balances.amis;
+        document.getElementById('val-reel').innerText = db.balances.reel;
+        document.getElementById('val-final').innerText = db.balances.final;
+        document.getElementById('amis-table').innerHTML = db.friends.map(f => `<tr><td>${f.nom}</td><td>${f.date}</td></tr>`).join('');
+        document.getElementById('hist-list').innerHTML = db.history.map(h => `<div class="card" style="text-align:left; font-size:11px"><b>${h.id}</b> - ${h.d} à ${h.h} (Achat n°${h.n})</div>`).join('');
+    }
+
+    document.getElementById('formRegister').onsubmit = function(e) {
+        e.preventDefault();
+        db.user = { nom: document.getElementById('reg-nom').value, tel: document.getElementById('reg-tel').value };
+        db.friends.push({nom: "Ami Invité #1", date: new Date().toLocaleDateString()});
+        save(); startApp();
+    };
+
+    function nav(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+        document.getElementById(id).classList.add('active-section');
+    }
+
+    function showCat(c) { document.getElementById('cat-A').style.display = c==='A'?'grid':'none'; document.getElementById('cat-B').style.display = c==='B'?'grid':'none'; }
+    function startApp() { document.getElementById('auth-screen').style.display='none'; document.getElementById('dashboard').style.display='block'; render(); updateUI(); if(db.timerStart) startTimer(); }
+    if(db.user) startApp();
+</script>
+</body>
+</html>
